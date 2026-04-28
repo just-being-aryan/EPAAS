@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PGPASSWORD=root psql -h localhost -p 5432 -U postgres -d epaas_db -c \"ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'NODAL_OFFICER_A';\")"
+    ]
+  }
+}
