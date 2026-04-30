@@ -99,7 +99,7 @@ export const listApplications = async (req, res, next) => {
         `SELECT a.id,
                 COALESCE(a.reference_no, 'DRAFT-' || a.id) AS display_ref,
                 a.reference_no, a.invoice_no, a.app_type, a.status, a.current_stage,
-                a.payment_status, a.created_at, a.submitted_at, a.decision_at,
+                a.payment_status, a.created_at, a.updated_at, a.submitted_at, a.decision_at,
                 d.product_name, d.food_category, d.organization_name, d.address, d.fee_amount
          FROM applications a
          LEFT JOIN application_details d ON d.application_id = a.id
@@ -380,4 +380,148 @@ export const listInvoices = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// GET /api/applications/requests/appeals
+export const listAppeals = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT ap.id, ap.appeal_type, ap.filed_date, ap.decision, ap.decision_date, ap.grounds, ap.remarks,
+              a.reference_no, a.app_type, a.decision_at,
+              COALESCE(a.reference_no, 'DRAFT-' || a.id) AS display_ref,
+              d.organization_name, d.product_name, d.food_category
+       FROM appeals ap
+       JOIN applications a ON a.id = ap.application_id
+       LEFT JOIN application_details d ON d.application_id = a.id
+       WHERE ap.filed_by = $1
+       ORDER BY ap.filed_date DESC`,
+      [req.user.id]
+    );
+    const stats = { total: rows.length, pending: 0, accepted: 0, rejected: 0 };
+    rows.forEach((r) => {
+      if (!r.decision) stats.pending++;
+      else if (r.decision === "accepted") stats.accepted++;
+      else stats.rejected++;
+    });
+    res.json({ success: true, data: rows, stats });
+  } catch (err) { next(err); }
+};
+
+// POST /api/applications/:id/appeal
+export const fileAppeal = async (req, res, next) => {
+  try {
+    const { grounds, appeal_type = "rejection" } = req.body;
+    if (!grounds?.trim()) return res.status(400).json({ success: false, message: "Grounds required" });
+
+    const { rows } = await pool.query(
+      "SELECT id, status FROM applications WHERE id = $1 AND applicant_id = $2",
+      [req.params.id, req.user.id]
+    );
+    if (!rows[0]) return res.status(404).json({ success: false, message: "Application not found" });
+    if (rows[0].status !== "rejected") return res.status(409).json({ success: false, message: "Can only appeal rejected applications" });
+
+    const { rows: result } = await pool.query(
+      `INSERT INTO appeals (application_id, appeal_type, filed_by, grounds)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [req.params.id, appeal_type, req.user.id, grounds]
+    );
+    res.status(201).json({ success: true, data: result[0] });
+  } catch (err) { next(err); }
+};
+
+// GET /api/applications/requests/reviews
+export const listReviews = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT rv.id, rv.review_reason, rv.filed_at, rv.chairperson_decision, rv.decided_at,
+              a.reference_no, a.app_type,
+              COALESCE(a.reference_no, 'DRAFT-' || a.id) AS display_ref,
+              d.organization_name, d.product_name, d.food_category,
+              ap.decision_date AS appeal_rejected_on
+       FROM reviews rv
+       JOIN applications a ON a.id = rv.application_id
+       LEFT JOIN application_details d ON d.application_id = a.id
+       LEFT JOIN appeals ap ON ap.id = rv.appeal_id
+       WHERE rv.filed_by = $1
+       ORDER BY rv.filed_at DESC`,
+      [req.user.id]
+    );
+    const stats = { total: rows.length, pending: 0, accepted: 0, rejected: 0 };
+    rows.forEach((r) => {
+      if (!r.chairperson_decision) stats.pending++;
+      else if (r.chairperson_decision === "accepted") stats.accepted++;
+      else stats.rejected++;
+    });
+    res.json({ success: true, data: rows, stats });
+  } catch (err) { next(err); }
+};
+
+// POST /api/applications/:id/review
+export const fileReview = async (req, res, next) => {
+  try {
+    const { review_reason, appeal_id } = req.body;
+    if (!review_reason?.trim()) return res.status(400).json({ success: false, message: "Review reason required" });
+
+    const { rows } = await pool.query(
+      "SELECT id FROM applications WHERE id = $1 AND applicant_id = $2",
+      [req.params.id, req.user.id]
+    );
+    if (!rows[0]) return res.status(404).json({ success: false, message: "Application not found" });
+
+    const { rows: result } = await pool.query(
+      `INSERT INTO reviews (application_id, appeal_id, filed_by, review_reason)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [req.params.id, appeal_id ?? null, req.user.id, review_reason]
+    );
+    res.status(201).json({ success: true, data: result[0] });
+  } catch (err) { next(err); }
+};
+
+// GET /api/applications/requests/extensions
+export const listExtensions = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT er.id, er.reason, er.status, er.requested_date, er.created_at,
+              a.reference_no, a.app_type,
+              COALESCE(a.reference_no, 'DRAFT-' || a.id) AS display_ref,
+              d.organization_name, d.food_category,
+              q.due_date, q.query_text
+       FROM extension_requests er
+       JOIN applications a ON a.id = er.application_id
+       LEFT JOIN application_details d ON d.application_id = a.id
+       LEFT JOIN queries q ON q.id = er.query_id
+       WHERE er.requested_by = $1
+       ORDER BY er.created_at DESC`,
+      [req.user.id]
+    );
+    const stats = { total: rows.length, pending: 0, approved: 0, rejected: 0 };
+    rows.forEach((r) => {
+      if (r.status === "pending") stats.pending++;
+      else if (r.status === "approved") stats.approved++;
+      else if (r.status === "rejected") stats.rejected++;
+    });
+    res.json({ success: true, data: rows, stats });
+  } catch (err) { next(err); }
+};
+
+// POST /api/applications/:id/extension-request
+export const createExtensionRequest = async (req, res, next) => {
+  try {
+    const { reason, query_id } = req.body;
+    if (!reason?.trim()) return res.status(400).json({ success: false, message: "Reason required" });
+
+    const { rows } = await pool.query(
+      "SELECT id, status FROM applications WHERE id = $1 AND applicant_id = $2",
+      [req.params.id, req.user.id]
+    );
+    if (!rows[0]) return res.status(404).json({ success: false, message: "Application not found" });
+    if (rows[0].status !== "query") return res.status(409).json({ success: false, message: "Can only request extension for applications with active queries" });
+
+    const { rows: result } = await pool.query(
+      `INSERT INTO extension_requests (application_id, query_id, requested_by, requested_date, reason)
+       VALUES ($1, $2, $3, CURRENT_DATE, $4) RETURNING *`,
+      [req.params.id, query_id ?? null, req.user.id, reason]
+    );
+    res.status(201).json({ success: true, data: result[0] });
+  } catch (err) { next(err); }
 };
