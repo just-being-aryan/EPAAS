@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <img src="../public/whitelogo.png" alt="" width={120} height={120} />
+              <img src="/whitelogo.png" alt="" width={120} height={120} />
               <div className="leading-tight">
                 <div className="font-bold text-sm">E-PAAS</div>
                 <div className="text-blue-200 text-[10px] uppercase tracking-wider">Product Approval</div>
