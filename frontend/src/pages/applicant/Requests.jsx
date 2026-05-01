@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Plus, FileText, Clock, CheckCircle2, XCircle, AlertCircle, X,
 } from "lucide-react";
@@ -372,27 +373,12 @@ function EmptyState({ label, sub }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 function PageContent() {
-  const [activeTab, setActiveTab] = useState("appeal");
+  const [searchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab") ?? "appeal";
+  const activeTab = TABS.some((tab) => tab.key === requestedTab) ? requestedTab : "appeal";
 
   return (
     <div className="p-4 sm:p-6">
-      {/* Tabs */}
-      <div className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 mb-6 w-fit">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
-              activeTab === t.key
-                ? "bg-[#39B5E0] text-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
       {activeTab === "appeal"    && <AppealsTab />}
       {activeTab === "review"    && <ReviewsTab />}
       {activeTab === "extension" && <ExtensionTab />}

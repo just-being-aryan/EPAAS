@@ -92,7 +92,7 @@ export default function SignupPage() {
 
       {/* Right panel */}
       <div className="w-full lg:w-3/5 flex items-center justify-center py-8 px-6 bg-[#ddeef7] overflow-y-auto">
-        <div className="w-full max-w-lg">
+        <div className="w-full max-w-xl">
           {/* Mobile logo */}
           <Link to="/" className="flex items-center gap-2 mb-6 lg:hidden">
             <div className="w-9 h-9 rounded-full bg-[#1a6e35] flex items-center justify-center text-white font-bold text-xs">F</div>
@@ -110,7 +110,7 @@ export default function SignupPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               {/* Name */}
               <div>
                 <label className="block text-xs font-semibold text-gray-800 mb-1.5">Name</label>

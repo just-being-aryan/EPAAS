@@ -207,7 +207,7 @@ export default function NodalLayout({ activeKey, onNavigate, children }) {
 
   return (
     <NodalCtx.Provider value={{ user, notifCount }}>
-      <div className="min-h-screen flex bg-[#F5F6FA]">
+      <div className="h-screen overflow-hidden flex bg-[#F5F6FA]">
 
         {/* Sidebar — desktop */}
         <aside className="hidden lg:flex lg:flex-col lg:w-56 lg:flex-shrink-0 lg:m-3 lg:rounded-2xl lg:h-[calc(100vh-1.5rem)] lg:sticky lg:top-3 bg-white border border-gray-100 shadow-sm overflow-hidden">
@@ -223,7 +223,7 @@ export default function NodalLayout({ activeKey, onNavigate, children }) {
         </aside>
 
         {/* Main */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl my-3 mr-3 shadow-sm overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 h-[calc(100vh-1.5rem)] bg-white rounded-2xl my-3 mr-3 shadow-sm overflow-hidden">
 
           {/* Top bar */}
           <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0">

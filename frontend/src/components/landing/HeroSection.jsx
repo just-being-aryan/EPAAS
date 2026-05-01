@@ -56,18 +56,6 @@ export default function HeroSection({ onOpenPanel }) {
             </div>
 
             {/* Stats */}
-            <div className="flex gap-8 text-sm">
-              {[
-                { label: "Applications Processed", value: "12,500+" },
-                { label: "Avg. Processing Time",   value: "45 Days" },
-                { label: "Approval Rate",           value: "78%" },
-              ].map((s) => (
-                <div key={s.label}>
-                  <div className="text-2xl font-bold text-[#9EDDFF]">{s.value}</div>
-                  <div className="text-white/70 text-xs mt-0.5">{s.label}</div>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Tracker Card */}

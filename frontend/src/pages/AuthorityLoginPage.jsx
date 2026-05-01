@@ -95,7 +95,7 @@ export default function AuthorityLoginPage() {
 
       {/* Right panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-[#ddeef7]">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
           {/* Mobile logo */}
           <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
             <div className="w-9 h-9 rounded-full bg-[#1e3a5f] flex items-center justify-center text-white font-bold text-xs">
@@ -118,7 +118,7 @@ export default function AuthorityLoginPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               <div>
                 <label className="block text-xs font-semibold text-[#1e3a5f] mb-1.5">Official Email ID</label>
                 <input

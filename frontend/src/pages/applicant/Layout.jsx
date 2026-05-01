@@ -13,7 +13,16 @@ const NAV = [
   { label: "Dashboard",            icon: LayoutDashboard, href: "/applicant/dashboard" },
   { label: "Application Details",  icon: FileText,        href: "/applicant/applications" },
   { label: "Tax Invoice/Payments", icon: Receipt,         href: "/applicant/invoices" },
-  { label: "Requests",             icon: MessageSquare,   href: "/applicant/requests" },
+  {
+    label: "Requests",
+    icon: MessageSquare,
+    href: "/applicant/requests",
+    children: [
+      { label: "Appeal against Rejection", href: "/applicant/requests?tab=appeal", tab: "appeal" },
+      { label: "Review against Appellate Order", href: "/applicant/requests?tab=review", tab: "review" },
+      { label: "Extension of Time", href: "/applicant/requests?tab=extension", tab: "extension" },
+    ],
+  },
 ];
 
 export default function ApplicantLayout({ pageTitle, headerRight, children }) {
@@ -54,11 +63,11 @@ export default function ApplicantLayout({ pageTitle, headerRight, children }) {
 
   return (
     <UserCtx.Provider value={{ user, companyName, notifCount }}>
-      <div className="min-h-screen flex bg-[#F5F6FA]">
+      <div className="h-screen overflow-hidden flex bg-[#F5F6FA]">
 
         {/* ── Sidebar ── */}
         <aside className={`fixed inset-y-0 left-0 z-40 w-56 flex flex-col transition-transform duration-200
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static lg:flex lg:m-3 lg:rounded-2xl lg:h-[calc(100vh-1.5rem)] bg-white border border-gray-100 shadow-sm`}>
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:sticky lg:top-3 lg:flex lg:m-3 lg:rounded-2xl lg:h-[calc(100vh-1.5rem)] bg-white border border-gray-100 shadow-sm`}>
 
           <div className="flex items-center gap-2.5 px-5 py-5 flex-shrink-0">
             <div>
@@ -68,22 +77,46 @@ export default function ApplicantLayout({ pageTitle, headerRight, children }) {
           </div>
 
           <nav className="flex-1 py-2 px-3 overflow-y-auto space-y-0.5">
-            {NAV.map(({ label, icon: Icon, href }) => {
+            {NAV.map(({ label, icon: Icon, href, children }) => {
               const active = location.pathname === href;
+              const activeTab = new URLSearchParams(location.search).get("tab") ?? "appeal";
               return (
-                <Link
-                  key={label}
-                  to={href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                    active
-                      ? "bg-[#39B5E0]/10 text-[#39B5E0]"
-                      : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-                >
-                  <Icon size={16} />
-                  {label}
-                </Link>
+                <div key={label}>
+                  <Link
+                    to={href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                      active
+                        ? "bg-[#39B5E0]/10 text-[#39B5E0]"
+                        : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                  >
+                    <Icon size={16} />
+                    {label}
+                  </Link>
+                  {active && children?.length > 0 && (
+                    <div className="ml-4 mt-0.5 mb-1 space-y-0.5 border-l border-gray-100 pl-2">
+                      {children.map((child) => {
+                        const childActive = activeTab === child.tab;
+                        return (
+                          <Link
+                            key={child.tab}
+                            to={child.href}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                              childActive
+                                ? "bg-[#39B5E0]/10 text-[#39B5E0]"
+                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${childActive ? "bg-[#39B5E0]" : "bg-gray-300"}`} />
+                            <span className="leading-tight">{child.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </nav>
@@ -107,7 +140,7 @@ export default function ApplicantLayout({ pageTitle, headerRight, children }) {
         )}
 
         {/* ── Main (floating rounded card) ── */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white rounded-2xl my-3 mr-3 shadow-sm overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0 h-[calc(100vh-1.5rem)] bg-white rounded-2xl my-3 mr-3 shadow-sm overflow-hidden">
 
           {/* Top bar */}
           <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center justify-between flex-shrink-0">

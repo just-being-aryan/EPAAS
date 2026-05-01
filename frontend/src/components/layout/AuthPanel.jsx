@@ -68,7 +68,7 @@ function ApplicantLoginForm({ onSwitch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {serverError && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2.5">
           <AlertCircle size={14} className="flex-shrink-0" /> {serverError}
@@ -156,7 +156,7 @@ function AuthorityLoginForm({ onSwitch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {serverError && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2.5">
           <AlertCircle size={14} className="flex-shrink-0" /> {serverError}
@@ -228,7 +228,7 @@ function SignupForm({ onSwitch }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {serverError && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg px-3 py-2.5">
           <AlertCircle size={14} className="flex-shrink-0" /> {serverError}
@@ -347,7 +347,7 @@ export default function AuthPanel({ mode, onClose, onSwitch }) {
       />
 
       {/* Panel */}
-      <div className={`fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[420px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[440px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         {/* Panel header */}
         <div className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-start justify-between gap-4">

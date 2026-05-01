@@ -6,7 +6,6 @@ const CATEGORIES = [
     title: "Non Specified Foods (NSF)",
     desc: "Approval for foods not having a history of consumption in India, including functional foods, nutraceuticals, and foods for special dietary use.",
     icon: FlaskConical,
-    fee: "₹59,000 + 18% GST",
     color: "text-emerald-600",
     bg: "bg-emerald-50",
     border: "border-emerald-200",
@@ -16,7 +15,6 @@ const CATEGORIES = [
     title: "Claim Approval (CA) ",
     desc: "Approval for nutrient content claims, health claims, and other product-specific claims on food labels and advertisements.",
     icon: Megaphone,
-    fee: "₹59,000 + 18% GST",
     color: "text-blue-600",
     bg: "bg-blue-50",
     border: "border-blue-200",
@@ -26,7 +24,6 @@ const CATEGORIES = [
     title: "Ayurveda Aahara (AA)",
     desc: "Approval for use of food additives, enzymes, flavourings, or other substances not specified or beyond the limits in FSS Regulations.",
     icon: Beaker,
-    fee: "₹59,000 + 18% GST",
     color: "text-violet-600",
     bg: "bg-violet-50",
     border: "border-violet-200",
@@ -36,7 +33,6 @@ const CATEGORIES = [
     title: "Recycled PET Approvals (rPET)",
     desc: "Approval for use of food-grade recycled PET (polyethylene terephthalate) material in food packaging applications.",
     icon: Recycle,
-    fee: "₹17,700 + 18% GST",
     color: "text-teal-600",
     bg: "bg-teal-50",
     border: "border-teal-200",
@@ -46,7 +42,6 @@ const CATEGORIES = [
     title: "Any Other Category",
     desc: "Applications that do not fall into the above categories but require FSSAI approval under the Food Safety and Standards Act, 2006.",
     icon: MoreHorizontal,
-    fee: "₹11,800 + 18% GST",
     color: "text-orange-600",
     bg: "bg-orange-50",
     border: "border-orange-200",
@@ -90,7 +85,7 @@ export default function AppCategories({ onOpenPanel }) {
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div>
-                    <p className="text-[10px] text-gray-400 font-medium">Application Fee</p>
+            
                     <p className="text-xs font-bold text-[#1a6e35]">{cat.fee}</p>
                   </div>
                   <div className={`flex items-center gap-1 text-xs font-semibold ${cat.color} group-hover:gap-2 transition-all`}>
