@@ -341,7 +341,7 @@ function NewApplicationContent() {
 
       const { data: created } = await api.post("/applications", payload);
       await api.post(`/applications/${created.data.id}/submit`);
-      navigate("/dashboard");
+      navigate("/applicant/dashboard");
     } catch (e) {
       setError(e.response?.data?.message ?? "Submission failed. Please try again.");
     } finally { setSubmitting(false); }

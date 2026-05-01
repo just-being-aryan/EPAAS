@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
-import axios from "axios";
+import api from "../lib/api";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -25,9 +25,9 @@ export default function LoginPage() {
   const onSubmit = async (data) => {
     setServerError("");
     try {
-      const res = await axios.post("/api/auth/login", data);
+      const res = await api.post("/auth/login", data);
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/applicant/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed. Please try again.");
     }

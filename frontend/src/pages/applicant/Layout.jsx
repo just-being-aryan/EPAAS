@@ -10,10 +10,10 @@ const UserCtx = createContext(null);
 export const useApplicantUser = () => useContext(UserCtx);
 
 const NAV = [
-  { label: "Dashboard",            icon: LayoutDashboard, href: "/dashboard" },
-  { label: "Application Details",  icon: FileText,        href: "/dashboard/applications" },
-  { label: "Tax Invoice/Payments", icon: Receipt,         href: "/dashboard/invoices" },
-  { label: "Requests",             icon: MessageSquare,   href: "/dashboard/requests" },
+  { label: "Dashboard",            icon: LayoutDashboard, href: "/applicant/dashboard" },
+  { label: "Application Details",  icon: FileText,        href: "/applicant/applications" },
+  { label: "Tax Invoice/Payments", icon: Receipt,         href: "/applicant/invoices" },
+  { label: "Requests",             icon: MessageSquare,   href: "/applicant/requests" },
 ];
 
 export default function ApplicantLayout({ pageTitle, headerRight, children }) {

@@ -6,7 +6,7 @@ import { z } from "zod";
 import {
   X, Eye, EyeOff, LogIn, ShieldCheck, UserPlus, AlertCircle, CheckCircle,
 } from "lucide-react";
-import axios from "axios";
+import api from "../../lib/api";
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -59,9 +59,9 @@ function ApplicantLoginForm({ onSwitch }) {
   const onSubmit = async (data) => {
     setServerError("");
     try {
-      const res = await axios.post("/api/auth/login", data);
+      const res = await api.post("/auth/login", data);
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/applicant/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed. Please try again.");
     }
@@ -131,9 +131,10 @@ function AuthorityLoginForm({ onSwitch }) {
   const onSubmit = async (data) => {
     setServerError("");
     try {
-      const res = await axios.post("/api/auth/login", data);
+      const res = await api.post("/auth/login", data);
       localStorage.setItem("token", res.data.token);
-      navigate("/authority/dashboard");
+      const ROLE_ROUTES = { NODAL_OFFICER_A: "/nodal/dashboard", NODAL_OFFICER_B: "/nodal/dashboard", STATE_NODAL_OFFICER: "/nodal/dashboard", APPLICANT: "/applicant/dashboard" };
+      navigate(ROLE_ROUTES[res.data.user?.role] ?? "/nodal/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed. Please try again.");
     }
@@ -199,13 +200,13 @@ function SignupForm({ onSwitch }) {
   const onSubmit = async (data) => {
     setServerError("");
     try {
-      const res = await axios.post("/api/auth/signup", {
+      const res = await api.post("/auth/signup", {
         username: data.username,
         email:    data.email,
         password: data.password,
       });
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/applicant/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Registration failed. Please try again.");
     }

@@ -246,7 +246,7 @@ function ViewContent() {
   useEffect(() => {
     api.get(`/applications/${id}`)
       .then((r) => setApp(r.data.data))
-      .catch(() => navigate("/dashboard/applications"))
+      .catch(() => navigate("/applicant/applications"))
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
@@ -332,7 +332,7 @@ function ViewContent() {
                 View Invoice <ChevronRight size={12} />
               </button>
               {app.status === "query" && (
-                <button onClick={() => navigate(`/dashboard/applications/${app.id}/respond`)}
+                <button onClick={() => navigate(`/applicant/applications/${app.id}/respond`)}
                   className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold bg-black text-white hover:bg-white hover:text-black border border-black transition-colors flex items-center justify-between">
                   Respond to Query <ChevronRight size={12} />
                 </button>

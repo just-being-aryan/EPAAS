@@ -94,24 +94,24 @@ function AppRow({ app, idx, bin, navigate }) {
 
   if (bin === null) return (
     <tr className={rowCls}>{n}{co}{ref}{typ}<TD><StatusBadge status={app.status} /></TD><TD className="text-gray-500">{lastUpdated}</TD>
-      <TD><Btn variant="outline" onClick={() => navigate(`/dashboard/applications/${app.id}`)}>View</Btn></TD>
+      <TD><Btn variant="outline" onClick={() => navigate(`/applicant/applications/${app.id}`)}>View</Btn></TD>
     </tr>
   );
   if (bin === "incomplete") return (
     <tr className={rowCls}>{n}{co}{ref}{adr}{typ}{cat}<TD className="text-gray-500">{fmt(app.created_at)}</TD>
-      <TD><Btn variant="dark" onClick={() => navigate(`/dashboard/applications/${app.id}/edit`)}>Edit Draft</Btn></TD>
+      <TD><Btn variant="dark" onClick={() => navigate(`/applicant/applications/${app.id}/edit`)}>Edit Draft</Btn></TD>
     </tr>
   );
   if (bin === "submitted") return (
     <tr className={rowCls}>{n}{co}{ref}{adr}{typ}{cat}<TD className="text-gray-500">{fmt(app.submitted_at)}</TD>
       <TD><StatusBadge status={app.status} /></TD>
-      <TD><Btn variant="outline" onClick={() => navigate(`/dashboard/applications/${app.id}`)}>View</Btn></TD>
+      <TD><Btn variant="outline" onClick={() => navigate(`/applicant/applications/${app.id}`)}>View</Btn></TD>
     </tr>
   );
   if (bin === "reverted") return (
     <tr className={rowCls}>{n}{co}{ref}{adr}{typ}{cat}<TD className="text-gray-500">{lastUpdated}</TD>
       <TD><StatusBadge status="query" /></TD>
-      <TD><Btn variant="dark" onClick={() => navigate(`/dashboard/applications/${app.id}/respond`)}>Respond</Btn></TD>
+      <TD><Btn variant="dark" onClick={() => navigate(`/applicant/applications/${app.id}/respond`)}>Respond</Btn></TD>
       <TD><div className="flex gap-1.5"><Btn variant="outline">View Query</Btn><Btn variant="amber">Req. Extension</Btn></div></TD>
     </tr>
   );
@@ -180,10 +180,10 @@ function DashboardContent() {
           <h2 className="text-xl sm:text-2xl font-bold text-white">Welcome back, {user?.username ?? "Applicant"}</h2>
         </div>
         <div className="flex gap-3 flex-shrink-0">
-          <Link to="/dashboard/applications/new" className="flex items-center gap-1.5 bg-black text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-colors">
+          <Link to="/applicant/applications/new" className="flex items-center gap-1.5 bg-black text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-white hover:text-black border border-black transition-colors">
             <Plus size={14} /> New Application
           </Link>
-          <Link to="/dashboard/profile" className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
+          <Link to="/applicant/profile" className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors">
             My Profile
           </Link>
         </div>
@@ -286,7 +286,7 @@ function DashboardContent() {
               <FileText size={32} className="text-gray-200 mx-auto mb-3" />
               <p className="text-gray-400 text-sm font-medium">No applications found</p>
               {activeBin === null && (
-                <Link to="/dashboard/applications/new" className="inline-flex items-center gap-1.5 bg-black text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black border border-black mt-4 transition-colors">
+                <Link to="/applicant/applications/new" className="inline-flex items-center gap-1.5 bg-black text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black border border-black mt-4 transition-colors">
                   <Plus size={13} /> New Application
                 </Link>
               )}
@@ -310,7 +310,7 @@ export default function ApplicantDashboard() {
     <ApplicantLayout
       pageTitle="Dashboard"
       headerRight={
-        <Link to="/dashboard/applications/new" className="flex items-center gap-1.5 bg-black hover:bg-white hover:text-black border border-black text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors">
+        <Link to="/applicant/applications/new" className="flex items-center gap-1.5 bg-black hover:bg-white hover:text-black border border-black text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors">
           <Plus size={13} /> New Application
         </Link>
       }

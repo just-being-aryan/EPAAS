@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, ShieldCheck, AlertCircle } from "lucide-react";
-import axios from "axios";
+import api from "../lib/api";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -22,12 +22,20 @@ export default function AuthorityLoginPage() {
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(schema) });
 
+  const ROLE_ROUTES = {
+    NODAL_OFFICER_A: "/nodal/dashboard",
+    NODAL_OFFICER_B: "/nodal/dashboard",
+    STATE_NODAL_OFFICER: "/nodal/dashboard",
+    APPLICANT: "/applicant/dashboard",
+  };
+
   const onSubmit = async (data) => {
     setServerError("");
     try {
-      const res = await axios.post("/api/auth/login", data);
+      const res = await api.post("/auth/login", data);
       localStorage.setItem("token", res.data.token);
-      navigate("/authority/dashboard");
+      const role = res.data.user?.role ?? "";
+      navigate(ROLE_ROUTES[role] ?? "/nodal/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed. Please try again.");
     }

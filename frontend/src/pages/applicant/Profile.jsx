@@ -192,7 +192,7 @@ function ProfileContent() {
           <h1 className="text-xl font-bold text-black">My Profile</h1>
           <p className="text-xs text-gray-400 mt-0.5">Manage your business information and account settings</p>
         </div>
-        <button onClick={() => navigate("/dashboard")}
+        <button onClick={() => navigate("/applicant/dashboard")}
           className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold border border-black text-black hover:bg-black hover:text-white transition-colors">
           <ArrowLeft size={13} /> Back to Dashboard
         </button>

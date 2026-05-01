@@ -36,18 +36,18 @@ function StatusBadge({ status }) {
 function ActionCell({ app, navigate }) {
   if (app.status === "draft") return (
     <div className="flex gap-1.5 flex-wrap">
-      <button onClick={() => navigate(`/dashboard/applications/${app.id}/edit`)}
+      <button onClick={() => navigate(`/applicant/applications/${app.id}/edit`)}
         className="px-2.5 py-1 rounded text-[11px] font-semibold bg-black hover:bg-white hover:text-black border border-black text-white transition-colors whitespace-nowrap">Edit</button>
-      <button onClick={() => navigate(`/dashboard/applications/${app.id}`)}
+      <button onClick={() => navigate(`/applicant/applications/${app.id}`)}
         className="px-2.5 py-1 rounded text-[11px] font-semibold border border-black text-black hover:bg-black hover:text-white transition-colors whitespace-nowrap">View</button>
     </div>
   );
   if (app.status === "query") return (
-    <button onClick={() => navigate(`/dashboard/applications/${app.id}/respond`)}
+    <button onClick={() => navigate(`/applicant/applications/${app.id}/respond`)}
       className="px-2.5 py-1 rounded text-[11px] font-semibold bg-black hover:bg-white hover:text-black border border-black text-white transition-colors whitespace-nowrap">Respond</button>
   );
   return (
-    <button onClick={() => navigate(`/dashboard/applications/${app.id}`)}
+    <button onClick={() => navigate(`/applicant/applications/${app.id}`)}
       className="px-2.5 py-1 rounded text-[11px] font-semibold border border-black text-black hover:bg-black hover:text-white transition-colors whitespace-nowrap">View</button>
   );
 }
@@ -125,7 +125,7 @@ function PageContent() {
           <div className="py-14 text-center">
             <FileText size={32} className="text-gray-200 mx-auto mb-3" />
             <p className="text-gray-400 text-sm font-medium">No applications found</p>
-            <Link to="/dashboard/applications/new"
+            <Link to="/applicant/applications/new"
               className="inline-flex items-center gap-1.5 bg-black text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black border border-black mt-4 transition-colors">
               <Plus size={13} /> New Application
             </Link>
@@ -168,7 +168,7 @@ export default function ApplicationDetails() {
     <ApplicantLayout
       pageTitle="Application Details"
       headerRight={
-        <Link to="/dashboard/applications/new"
+        <Link to="/applicant/applications/new"
           className="flex items-center gap-1.5 bg-black hover:bg-white hover:text-black border border-black text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition-colors">
           <Plus size={13} /> New Application
         </Link>

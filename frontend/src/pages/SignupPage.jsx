@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, UserPlus, AlertCircle, CheckCircle } from "lucide-react";
-import axios from "axios";
+import api from "../lib/api";
 
 const schema = z.object({
   username: z.string().min(2, "Name must be at least 2 characters"),
@@ -34,13 +34,13 @@ export default function SignupPage() {
   const onSubmit = async (data) => {
     setServerError("");
     try {
-      const res = await axios.post("/api/auth/signup", {
+      const res = await api.post("/auth/signup", {
         username: data.username,
         email: data.email,
         password: data.password,
       });
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/applicant/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Registration failed. Please try again.");
     }
