@@ -33,16 +33,16 @@ export const signup = async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const roleResult = await pool.query("SELECT id FROM roles WHERE role_code = 'APPLICANT'");
+    const roleResult = await pool.query("SELECT id FROM roles WHERE role_code = 'Applicant'");
     const applicantRoleId = roleResult.rows[0].id;
 
     const { rows } = await pool.query(
-      `INSERT INTO users (username, email, password, role_id)
+      `INSERT INTO users (username, email, password_hash, role_id)
        VALUES ($1, $2, $3, $4)
        RETURNING id, username, email`,
       [data.username, data.email, passwordHash, applicantRoleId]
     );
-    const user = { ...rows[0], role: "APPLICANT" };
+    const user = { ...rows[0], role: "Applicant" };
 
     const token = signToken(user);
     res.status(201).json({
@@ -61,7 +61,7 @@ export const login = async (req, res, next) => {
     const data = loginSchema.parse(req.body);
 
     const { rows } = await pool.query(
-      `SELECT u.id, u.username, u.email, u.password, r.role_code AS role
+      `SELECT u.id, u.username, u.email, u.password_hash, r.role_code AS role
        FROM users u
        JOIN roles r ON r.id = u.role_id
        WHERE u.email = $1`,
@@ -69,7 +69,7 @@ export const login = async (req, res, next) => {
     );
     const user = rows[0];
 
-    if (!user || !(await bcrypt.compare(data.password, user.password))) {
+    if (!user || !(await bcrypt.compare(data.password, user.password_hash))) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 

@@ -8,6 +8,8 @@ import Requests from "./pages/applicant/Requests";
 import NewApplication from "./pages/applicant/NewApplication";
 import Profile from "./pages/applicant/Profile";
 import NodalDashboard from "./pages/nodal/NodalDashboard";
+import TechnicalDashboard from "./pages/technical/TechnicalDashboard";
+import ExpertDashboard from "./pages/expert/ExpertDashboard";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -32,6 +34,12 @@ export default function App() {
 
         {/* Nodal Officer */}
         <Route path="/nodal/dashboard" element={<ProtectedRoute><NodalDashboard /></ProtectedRoute>} />
+
+        {/* Technical Officer */}
+        <Route path="/technical/dashboard" element={<ProtectedRoute><TechnicalDashboard /></ProtectedRoute>} />
+
+        {/* Expert Committee */}
+        <Route path="/expert/dashboard" element={<ProtectedRoute><ExpertDashboard /></ProtectedRoute>} />
 
         {/* Legacy redirects */}
         <Route path="/dashboard" element={<Navigate to="/applicant/dashboard" replace />} />

@@ -9,6 +9,8 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import applicationRoutes from "./routes/application.routes.js";
 import nodalRoutes from "./routes/nodal.routes.js";
+import technicalRoutes from "./routes/technical.routes.js";
+import expertRoutes from "./routes/expert.routes.js";
 import { globalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -30,6 +32,8 @@ app.get("/", (req, res) => res.json({ success: true, message: "E-PAAS API is run
 app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/nodal", nodalRoutes);
+app.use("/api/technical", technicalRoutes);
+app.use("/api/expert", expertRoutes);
 
 app.use(errorHandler);
 

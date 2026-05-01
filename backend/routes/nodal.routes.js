@@ -29,7 +29,7 @@ import {
 
 const router = Router();
 
-router.use(authenticate, authorize("NODAL_OFFICER_A"));
+router.use(authenticate, authorize("NodalOfficerA", "NodalOfficerARPET"));
 
 // Dashboard
 router.get("/stats", getDashboardStats);
@@ -44,6 +44,7 @@ router.post("/applications/:id/reject", rejectApplication);
 router.post("/applications/:id/withdraw", withdrawApproval);
 
 // Queries — specific routes before param routes
+router.get("/queries", listQueries);
 router.get("/applications/:id/queries", listQueries);
 router.post("/applications/:id/queries", raiseQuery);
 router.patch("/queries/:queryId/approve", approveQuery);

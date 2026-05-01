@@ -133,7 +133,22 @@ function AuthorityLoginForm({ onSwitch }) {
     try {
       const res = await api.post("/auth/login", data);
       localStorage.setItem("token", res.data.token);
-      const ROLE_ROUTES = { NODAL_OFFICER_A: "/nodal/dashboard", NODAL_OFFICER_B: "/nodal/dashboard", STATE_NODAL_OFFICER: "/nodal/dashboard", APPLICANT: "/applicant/dashboard" };
+      const ROLE_ROUTES = {
+        Applicant: "/applicant/dashboard",
+        ApplicantRPET: "/applicant/dashboard",
+        NodalOfficerA: "/nodal/dashboard",
+        NodalOfficerARPET: "/nodal/dashboard",
+        NodalPointB: "/nodal/dashboard",
+        TechnicalOfficer: "/technical/dashboard",
+        TechnicalOfficerRPET: "/technical/dashboard",
+        ExpertCommittee: "/expert/dashboard",
+        APPLICANT: "/applicant/dashboard",
+        NODAL_OFFICER_A: "/nodal/dashboard",
+        NODAL_OFFICER_B: "/nodal/dashboard",
+        TECHNICAL_OFFICER: "/technical/dashboard",
+        EXPERT_COMMITTEE: "/expert/dashboard",
+        STATE_NODAL_OFFICER: "/nodal/dashboard",
+      };
       navigate(ROLE_ROUTES[res.data.user?.role] ?? "/nodal/dashboard");
     } catch (err) {
       setServerError(err.response?.data?.message || "Login failed. Please try again.");

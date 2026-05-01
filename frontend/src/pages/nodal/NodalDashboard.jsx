@@ -107,6 +107,78 @@ function EmptyTable({ cols }) {
   );
 }
 
+function AssignOfficerModal({ app, onClose, onAssigned }) {
+  const [officers, setOfficers] = useState([]);
+  const [officerId, setOfficerId] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!app) return;
+    api.get("/nodal/officers")
+      .then((r) => {
+        const list = r.data.data ?? [];
+        setOfficers(list);
+        setOfficerId(list[0]?.id ?? "");
+      })
+      .catch(() => setOfficers([]));
+  }, [app]);
+
+  if (!app) return null;
+
+  const submit = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await api.post(`/nodal/applications/${app.id}/assign`, { officer_id: officerId, remarks });
+      onAssigned?.();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message ?? "Failed to assign Technical Officer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-xl border border-gray-100 w-full max-w-md p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-gray-400 font-bold">Assign Technical Officer</div>
+            <h3 className="font-bold text-black">{app.reference_no ?? app.display_ref}</h3>
+            <p className="text-xs text-gray-500">{app.organization_name ?? "Application"}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700"><X size={18} /></button>
+        </div>
+        {error && <div className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3">{error}</div>}
+        <div className="space-y-3">
+          <FL label="Technical Officer">
+            <select value={officerId} onChange={(e) => setOfficerId(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-black w-full">
+              {officers.length === 0 ? <option value="">No Technical Officers found</option> : officers.map((o) => (
+                <option key={o.id} value={o.id}>{o.username} {o.employee_code ? `(${o.employee_code})` : ""}</option>
+              ))}
+            </select>
+          </FL>
+          <textarea
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Assignment remarks..."
+            className="w-full min-h-24 text-xs border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-black resize-none"
+          />
+        </div>
+        <div className="flex justify-end gap-2 mt-5">
+          <button onClick={onClose} className="px-3 py-1.5 text-xs font-bold border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">Cancel</button>
+          <button onClick={submit} disabled={loading || !officerId} className="px-3 py-1.5 text-xs font-bold rounded-lg text-white bg-[#3D1C10] hover:bg-[#2a120a] disabled:opacity-50">
+            {loading ? "Assigning..." : "Assign"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const TILES = [
@@ -241,7 +313,7 @@ function PendingTabBar({ activeTab, setActiveTab }) {
 
 // ── Shared table for Doc Scrutinization ──────────────────────────────────────
 
-function DocScrutinizationTable({ rows, loading }) {
+function DocScrutinizationTable({ rows, loading, onAssign, onForwardEC, forwardingId }) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -275,7 +347,17 @@ function DocScrutinizationTable({ rows, loading }) {
                 <TD>—</TD>
                 <TD><span className="font-bold text-amber-600">{app.days_remaining ?? "—"}</span></TD>
                 <TD>
-                  <button className="px-2.5 py-1 text-[10px] font-bold border border-black text-black hover:bg-black hover:text-white rounded transition-colors">Review</button>
+                  <div className="flex gap-1.5 flex-wrap">
+                    <button className="px-2.5 py-1 text-[10px] font-bold border border-black text-black hover:bg-black hover:text-white rounded transition-colors">Review</button>
+                    <button onClick={() => onAssign(app)} className="px-2.5 py-1 text-[10px] font-bold bg-[#39B5E0] text-white hover:bg-[#249bc4] rounded transition-colors">Assign TO</button>
+                    <button
+                      onClick={() => onForwardEC(app.id)}
+                      disabled={forwardingId === app.id}
+                      className="px-2.5 py-1 text-[10px] font-bold bg-[#B45309] text-white hover:bg-[#92400e] rounded transition-colors disabled:opacity-50"
+                    >
+                      {forwardingId === app.id ? "Forwarding..." : "Forward EC"}
+                    </button>
+                  </div>
                 </TD>
               </tr>
             ))}
@@ -292,16 +374,30 @@ function DocScrutinization() {
   const [filters, setFilters] = useState({ ref: "", company: "", state: "", from: "", to: "", bizType: "", appType: "", appFilter: "" });
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [assignApp, setAssignApp] = useState(null);
+  const [forwardingId, setForwardingId] = useState("");
   const set = (k, v) => setFilters((f) => ({ ...f, [k]: v }));
   const clear = () => setFilters({ ref: "", company: "", state: "", from: "", to: "", bizType: "", appType: "", appFilter: "" });
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
-    api.get("/nodal/applications", { params: { status: "scrutiny", limit: 100 } })
+    api.get("/nodal/applications", { params: { status: "pending", limit: 100 } })
       .then((r) => setRows(r.data.data ?? []))
       .catch(() => setRows([]))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const forwardEC = async (id) => {
+    setForwardingId(id);
+    try {
+      await api.post(`/nodal/applications/${id}/forward-ec`, { remarks: "Forwarded to Expert Committee for decision." });
+      load();
+    } finally {
+      setForwardingId("");
+    }
+  };
 
   const displayed = rows.filter((r) => {
     if (filters.ref && !r.reference_no?.toLowerCase().includes(filters.ref.toLowerCase())) return false;
@@ -322,7 +418,8 @@ function DocScrutinization() {
         <FL label="Application Type"><FilterSelect value={filters.appType} onChange={(v) => set("appType", v)} options={APP_TYPES} placeholder="All" /></FL>
         <FL label="Application Filter"><FilterInput placeholder="Filter..." value={filters.appFilter} onChange={(v) => set("appFilter", v)} /></FL>
       </FilterBar>
-      <DocScrutinizationTable rows={displayed} loading={loading} />
+      <DocScrutinizationTable rows={displayed} loading={loading} onAssign={setAssignApp} onForwardEC={forwardEC} forwardingId={forwardingId} />
+      <AssignOfficerModal app={assignApp} onClose={() => setAssignApp(null)} onAssigned={load} />
     </>
   );
 }
@@ -405,16 +502,29 @@ function AppEditing() {
   const [filters, setFilters] = useState({ ref: "", company: "", state: "", from: "", to: "" });
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actioning, setActioning] = useState("");
   const set = (k, v) => setFilters((f) => ({ ...f, [k]: v }));
   const clear = () => setFilters({ ref: "", company: "", state: "", from: "", to: "" });
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
-    api.get("/nodal/applications", { params: { status: "query", limit: 100 } })
+    api.get("/nodal/queries", { params: { status: "Draft" } })
       .then((r) => setRows(r.data.data ?? []))
       .catch(() => setRows([]))
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const approve = async (queryId) => {
+    setActioning(queryId);
+    try {
+      await api.patch(`/nodal/queries/${queryId}/approve`);
+      load();
+    } finally {
+      setActioning("");
+    }
+  };
 
   const displayed = rows.filter((r) => {
     if (filters.ref && !r.reference_no?.toLowerCase().includes(filters.ref.toLowerCase())) return false;
@@ -441,15 +551,17 @@ function AppEditing() {
                 <TH>App. Type</TH>
                 <TH>Application Name</TH>
                 <TH>Company / Org.</TH>
+                <TH>Query Drafted By</TH>
+                <TH>Query</TH>
                 <TH>Forwarded On</TH>
                 <TH>Action</TH>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={7} className="py-10 text-center text-gray-400">Loading…</td></tr>
+                <tr><td colSpan={9} className="py-10 text-center text-gray-400">Loading...</td></tr>
               ) : displayed.length === 0 ? (
-                <EmptyTable cols={7} />
+                <EmptyTable cols={9} />
               ) : displayed.map((app, i) => (
                 <tr key={app.id} className="hover:bg-blue-50/30 transition-colors">
                   <TD className="text-center text-gray-400">{i + 1}</TD>
@@ -457,9 +569,17 @@ function AppEditing() {
                   <TD>{app.app_type ?? "—"}</TD>
                   <TD className="max-w-[140px] truncate">{app.product_name ?? "—"}</TD>
                   <TD className="max-w-[140px] truncate font-medium">{app.organization_name ?? "—"}</TD>
-                  <TD className="whitespace-nowrap">{fmt(app.submitted_at)}</TD>
+                  <TD>{app.drafted_by_name ?? "—"}</TD>
+                  <TD className="max-w-[260px] truncate text-gray-600">{app.query_text ?? "—"}</TD>
+                  <TD className="whitespace-nowrap">{fmt(app.created_at)}</TD>
                   <TD>
-                    <button className="px-2.5 py-1 text-[10px] font-bold bg-black text-white hover:bg-white hover:text-black border border-black rounded transition-colors">Respond</button>
+                    <button
+                      onClick={() => approve(app.id)}
+                      disabled={actioning === app.id}
+                      className="px-2.5 py-1 text-[10px] font-bold bg-black text-white hover:bg-white hover:text-black border border-black rounded transition-colors disabled:opacity-50"
+                    >
+                      {actioning === app.id ? "Sending..." : "Approve & Send to Applicant"}
+                    </button>
                   </TD>
                 </tr>
               ))}
@@ -626,7 +746,7 @@ function AppBasedReportPage({ type }) {
     const params = { limit: 200 };
     if (type === "approved")  params.status   = "approved";
     if (type === "rejected")  params.status   = "rejected";
-    if (type === "withdrawn") params.status   = "rejected";
+    if (type === "withdrawn") params.status   = "withdrawn";
     if (type === "appeal")    params.app_type = "Appeal";
     if (type === "review")    params.app_type = "Review";
     api.get("/nodal/applications", { params })

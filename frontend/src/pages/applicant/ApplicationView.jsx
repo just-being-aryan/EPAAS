@@ -132,31 +132,89 @@ function DocumentsTab({ app }) {
 
 // ── Queries Tab ───────────────────────────────────────────────────────────────
 function QueriesTab({ app }) {
-  if (app.status !== "query" && app.status !== "scrutiny" && app.status !== "ec") {
-    return (
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 className="font-bold text-black text-base mb-4">Query History</h3>
-        <div className="py-10 text-center">
-          <AlertCircle size={32} className="text-gray-200 mx-auto mb-3" />
-          <p className="text-gray-400 text-sm">No queries raised for this application.</p>
-        </div>
-      </div>
-    );
-  }
+  const [queries, setQueries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [responseText, setResponseText] = useState({});
+  const [submitting, setSubmitting] = useState("");
+  const [error, setError] = useState("");
+
+  const load = () => {
+    setLoading(true);
+    api.get(`/applications/${app.id}/queries`)
+      .then((r) => setQueries(r.data.data ?? []))
+      .catch(() => setQueries([]))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, [app.id]);
+
+  const respond = async (queryId) => {
+    setSubmitting(queryId);
+    setError("");
+    try {
+      await api.post(`/applications/${app.id}/queries/${queryId}/respond`, {
+        response_text: responseText[queryId] ?? "",
+      });
+      setResponseText((s) => ({ ...s, [queryId]: "" }));
+      load();
+    } catch (err) {
+      setError(err.response?.data?.message ?? "Failed to submit response.");
+    } finally {
+      setSubmitting("");
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
       <h3 className="font-bold text-black text-base mb-4">Query History</h3>
-      <div className="space-y-3">
-        <div className="border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-black">Query #1</span>
-            <span className="text-[11px] text-gray-400">{fmt(app.updated_at)}</span>
-          </div>
-          <p className="text-sm text-gray-600 mb-3">The authority has raised a query on your application. Please review and respond with the required documents.</p>
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-yellow-100 text-yellow-700">Pending Response</span>
+      {error && <div className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3">{error}</div>}
+      {loading ? (
+        <div className="py-10 text-center text-gray-400 text-sm">Loading queries...</div>
+      ) : queries.length === 0 ? (
+        <div className="py-10 text-center">
+          <AlertCircle size={32} className="text-gray-200 mx-auto mb-3" />
+          <p className="text-gray-400 text-sm">No queries raised for this application.</p>
         </div>
-      </div>
+      ) : (
+        <div className="space-y-3">
+          {queries.map((query, index) => (
+            <div key={query.id} className="border border-gray-100 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-bold text-black">Query #{queries.length - index}</span>
+                <span className="text-[11px] text-gray-400">Due {fmt(query.due_date)}</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-3 whitespace-pre-wrap">{query.query_text}</p>
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold ${query.status === "Responded" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                  {query.status === "Responded" ? "Responded" : "Pending Response"}
+                </span>
+                <span className="text-[11px] text-gray-400">Sent {fmt(query.sent_date ?? query.created_at)}</span>
+              </div>
+              {query.response_text ? (
+                <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs text-gray-600">
+                  <span className="font-bold text-gray-800">Your response: </span>{query.response_text}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <textarea
+                    value={responseText[query.id] ?? ""}
+                    onChange={(e) => setResponseText((s) => ({ ...s, [query.id]: e.target.value }))}
+                    placeholder="Write your clarification / correction details for the authority..."
+                    className="w-full min-h-24 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black resize-none"
+                  />
+                  <button
+                    onClick={() => respond(query.id)}
+                    disabled={submitting === query.id || !(responseText[query.id] ?? "").trim()}
+                    className="px-3 py-2 rounded-lg bg-black text-white text-xs font-bold hover:bg-white hover:text-black border border-black transition-colors disabled:opacity-50"
+                  >
+                    {submitting === query.id ? "Submitting..." : "Submit Query Response"}
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -332,7 +390,7 @@ function ViewContent() {
                 View Invoice <ChevronRight size={12} />
               </button>
               {app.status === "query" && (
-                <button onClick={() => navigate(`/applicant/applications/${app.id}/respond`)}
+                <button onClick={() => setTab("Queries")}
                   className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold bg-black text-white hover:bg-white hover:text-black border border-black transition-colors flex items-center justify-between">
                   Respond to Query <ChevronRight size={12} />
                 </button>
