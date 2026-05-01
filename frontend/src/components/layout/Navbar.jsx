@@ -15,7 +15,7 @@ export default function Navbar({ onOpenPanel }) {
           {/* Logo */}
           <Link to="/" className="flex items-center flex-shrink-0">
             <img
-              src="/logo.png"
+              src="/logo.png?v=1"
               alt="FSSAI Logo"
               className="h-30 w-auto object-contain"
             />
